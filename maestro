@@ -15,3 +15,7 @@ if ($argv[1] === 'phpcs') {
 if ($argv[1] === 'deptrac') {
     passthru('php vendor/bin/deptrac --ansi');
 }
+
+if ($argv[1] === 'fix') {
+    passthru('php vendor/bin/phpcbf');
+}
