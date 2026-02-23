@@ -21,8 +21,8 @@ class Router
     {
         foreach ($this->routes as $route) {
             if ($route->matches($request->method, $request->path)) {
-                $response = new Response();
-                $response->body = $route->return;
+                $callback = $route->callback;
+                $response = $callback();
                 return $response;
             }
         }
@@ -39,12 +39,12 @@ class Router
      *
      * @param string $method HTTP method
      * @param string $path URL path
-     * @param string $return Response body
+     * @param callable $callback Callback function to handle the route
      * @return void
      */
-    public function addRoute(string $method, string $path, string $return): void
+    public function addRoute(string $method, string $path, callable $callback): void
     {
-        $route = new Route($method, $path, $return);
+        $route = new Route($method, $path, $callback);
         $this->routes[] = $route;
     }
 }

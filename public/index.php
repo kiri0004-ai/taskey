@@ -3,6 +3,8 @@
 // Autoload dependencies and classes
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\HomeController;
+use App\Controllers\TaskController;
 use Framework\Kernel;
 use Framework\Request;
 
@@ -11,8 +13,13 @@ $kernel = new Kernel();
 
 // Define routes
 $router = $kernel->getRouter();
-$router->addRoute('GET', '/', "Home Page");
-$router->addRoute('GET', '/about', "About Page");
+$homeController = new HomeController();
+$router->addRoute('GET', '/', [$homeController, "index"]);
+$router->addRoute('GET', '/about', [$homeController, "about"]);
+
+$taskController = new TaskController();
+$router->addRoute('GET', '/tasks', [$taskController, "index"]);
+$router->addRoute('GET', '/tasks/create', [$taskController, "create"]);
 
 // Get Request data from the global variables
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
