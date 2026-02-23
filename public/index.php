@@ -9,6 +9,11 @@ use Framework\Request;
 // Initialize the Kernel
 $kernel = new Kernel();
 
+// Define routes
+$router = $kernel->getRouter();
+$router->addRoute('GET', '/', "Home Page");
+$router->addRoute('GET', '/about', "About Page");
+
 // Get Request data from the global variables
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
