@@ -10,6 +10,8 @@ class TaskController
 {
     private ResponseFactory $responseFactory;
 
+    private TaskRepositoryInterface $taskRepository;
+
     public function __construct(ResponseFactory $responseFactory)
     {
         $this->responseFactory = $responseFactory;
