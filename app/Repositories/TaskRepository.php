@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Project;
 use Framework\Database;
 use App\Models\Task;
 
@@ -101,6 +102,7 @@ class TaskRepository implements TaskRepositoryInterface
         $task->progress = $row->progress;
         $task->createdAt = $row->created_at;
         $task->completedAt = $row->completed_at;
+        $task->projectId = $row->project_id;
         return $task;
     }
 
@@ -109,5 +111,23 @@ class TaskRepository implements TaskRepositoryInterface
         $stmt = $this->database->run("DELETE FROM tasks WHERE id = :id", ["id" => $task->id]);
 
         return $stmt->rowCount() > 0;
+    }
+    /**
+     * @return Task[]
+    */
+
+    public function findProjectTasks(Project $project): array
+    {
+        $stmt = $this->database->run(
+            "SELECT * FROM tasks WHERE project_id = :project_id",
+            [
+                'project_id' => $project->id]
+        )->fetchAll();
+
+        $tasks = [];
+        foreach ($stmt as $row) {
+            $tasks[] = $this->fromDbRow($row);
+        }
+        return $tasks;
     }
 }

@@ -3,7 +3,10 @@
 namespace App;
 
 use App\Controllers\HomeController;
+use App\Controllers\ProjectController;
 use App\Controllers\TaskController;
+use App\Repositories\ProjectRepository;
+use App\Repositories\ProjectRepositoryInterface;
 use App\Repositories\TaskRepository;
 use App\Repositories\TaskRepositoryInterface;
 use Exception;
@@ -24,12 +27,17 @@ class ServiceProvider implements ServiceProviderInterface
         $database = $container->get(Database::class);
 
         $taskRepository = new TaskRepository($database);
+        $projectRepository = new ProjectRepository($database);
         $container->set(TaskRepositoryInterface::class, $taskRepository);
+        $container->set(ProjectRepositoryInterface::class, $projectRepository);
 
         $homeController = new HomeController($responseFactory);
         $container->set(HomeController::class, $homeController);
 
-        $taskController = new TaskController($responseFactory, $taskRepository);
+        $projectController = new ProjectController($responseFactory, $projectRepository, $taskRepository);
+        $container->set(ProjectController::class, $projectController);
+
+        $taskController = new TaskController($responseFactory, $taskRepository, $projectRepository);
         $container->set(TaskController::class, $taskController);
     }
 }

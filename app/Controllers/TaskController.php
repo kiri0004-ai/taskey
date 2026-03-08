@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Task;
+use App\Repositories\ProjectRepositoryInterface;
 use App\Repositories\TaskRepositoryInterface;
 use DateTime;
 use Framework\Request;
@@ -15,10 +16,16 @@ class TaskController
 
     private TaskRepositoryInterface $taskRepository;
 
-    public function __construct(ResponseFactory $responseFactory, TaskRepositoryInterface $taskRepository)
-    {
+    private ProjectRepositoryInterface $projectRepository;
+
+    public function __construct(
+        ResponseFactory $responseFactory,
+        TaskRepositoryInterface $taskRepository,
+        ProjectRepositoryInterface $projectRepository
+    ) {
         $this->responseFactory = $responseFactory;
         $this->taskRepository = $taskRepository;
+        $this->projectRepository = $projectRepository;
     }
 
     public function index(): Response
@@ -87,11 +94,14 @@ class TaskController
     {
         $taskId = (int)$request->get('id');
         $task = $this->taskRepository->find($taskId);
-
         if ($task === null) {
             return $this->responseFactory->notFound();
         }
-        return $this->responseFactory->view("tasks/show.html.twig", ["task" => $task]);
+        $project = $this->projectRepository->find($task->projectId);
+        return $this->responseFactory->view("tasks/show.html.twig", [
+            "task" => $task,
+            "project" => $project
+        ]);
     }
 
     public function edit(Request $request): Response

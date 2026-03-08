@@ -7,6 +7,12 @@
             <strong>Task Details</strong>
         </div>
         <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Assigned to project:</div>
+                <div class="col-sm-9"><a href="/projects/{{ project.id }}">{{ project.title }}</a></div>
+            </div>
+
             <div class="row mb-3">
                 <div class="col-sm-3 fw-bold">Title</div>
                 <div class="col-sm-9">{{ task.title }}</div>

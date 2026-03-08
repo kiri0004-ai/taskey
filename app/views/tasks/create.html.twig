@@ -44,7 +44,10 @@
                     <div class="col-sm-9">
                         <select name="status" id="status" class="form-select">
                             {% for value, label in statuses %}
-                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label|title }}</option>
+                                <option value="{{ value }}"
+                                        {% if task.status == value %}
+                                          selected
+                                        {% endif %}>{{ label|title }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -70,3 +73,4 @@
             </div>
         </div>
     </form>
+{% endblock %}

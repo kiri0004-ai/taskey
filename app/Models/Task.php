@@ -20,6 +20,8 @@ class Task
 
     public ?int $completedAt;
 
+    public int $projectId;
+
     public function __construct()
     {
         $this->priority = 0;

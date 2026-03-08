@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Project;
 use App\Models\Task;
 
 interface TaskRepositoryInterface
@@ -12,4 +13,7 @@ interface TaskRepositoryInterface
     public function insert(Task $task): Task|null;
     public function update(Task $task): bool;
     public function delete(Task $task): bool;
+
+    /** @return Task[] */
+    public function findProjectTasks(Project $project): array;
 }
