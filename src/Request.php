@@ -8,7 +8,7 @@ class Request
 
     public string $path;
 
-    /** @var string[] */
+    /** @var array<string|string[]> */
     public array $postParameters;
 
     /** @var string[] */
@@ -41,6 +41,21 @@ class Request
         }
         if (array_key_exists($key, $this->queryParameters)) {
             return $this->queryParameters[$key];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $key
+     * @return string[]|null
+     */
+    public function getMany(string $key): ?array
+    {
+        if (array_key_exists($key, $this->postParameters)) {
+            if (is_array($this->postParameters[$key])) {
+                return $this->postParameters[$key];
+            }
+            return array($this->postParameters[$key]);
         }
         return null;
     }
