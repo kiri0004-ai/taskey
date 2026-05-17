@@ -5,20 +5,52 @@ deptrac:
   exclude_files:
     - '#.*test.*#'
   layers:
-    - name: App
+    - name: Controllers
       collectors:
         - type: classLike
-          value: ^App\\.*
+          value: ^App\\Controllers\\.*
+    - name: Models
+      collectors:
+        - type: classLike
+          value: ^App\\Models\\.*
+    - name: Repositories
+      collectors:
+        - type: classLike
+          value: ^App\\Repositories\\.*
+    - name: Providers
+      collectors:
+        - type: classLike
+          value: ^App\\.*Provider
+    - name: Database
+      collectors:
+        - type: classLike
+          value: ^Framework\\Database
     - name: Framework
       collectors:
-        - type: classLike
-          value: ^Framework\\.*
+        - type: bool
+          must:
+            - type: classLike
+              value: ^Framework\\.*
+          must_not:
+            - type: classLike
+              value: ^Framework\\Database.*
     - name: Vendor
       collectors:
         - type: classLike
           value: ^Twig\\.*
   ruleset:
-    App:
+    Controllers:
       - Framework
+      - Models
+      - Repositories
+    Providers:
+      - Controllers
+      - Framework
+      - Database
+      - Repositories
+    Repositories:
+      - Models
+      - Database
     Framework:
       - Vendor
+      - Database

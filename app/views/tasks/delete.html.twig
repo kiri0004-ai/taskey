@@ -2,6 +2,7 @@
 
 {% block content %}
     <form method="POST" action="/tasks/{{ task.id }}/delete">
+        {{ csrf_input() }}
         <div class="card shadow-sm">
             <div class="card-header">
                 <strong>Delete Task</strong>

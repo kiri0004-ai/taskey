@@ -19,6 +19,12 @@ class Task
     public int $createdAt;
 
     public ?int $completedAt;
+    public int $createdBy;
+
+    public ?int $projectId = null;
+
+    /** @var Tag[] */
+    public array $tags;
 
     public function __construct()
     {

@@ -1,9 +1,11 @@
 {% extends "tasks/base.twig" %}
 
 {% block content %}
+    {% if user %}
     <div class="text-end mb-3">
         <a href="/tasks/create" class="btn btn-primary">Create New Task</a>
     </div>
+    {% endif %}
     <table class="table table-striped align-middle">
         <thead class="table-dark">
             <tr>

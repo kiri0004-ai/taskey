@@ -3,7 +3,10 @@
 namespace App\Controllers;
 
 use App\Models\Task;
+use App\Repositories\ProjectRepositoryInterface;
+use App\Repositories\TagRepositoryInterface;
 use App\Repositories\TaskRepositoryInterface;
+use App\Repositories\UserRepositoryInterface;
 use DateTime;
 use Framework\Request;
 use Framework\Response;
@@ -15,10 +18,24 @@ class TaskController
 
     private TaskRepositoryInterface $taskRepository;
 
-    public function __construct(ResponseFactory $responseFactory, TaskRepositoryInterface $taskRepository)
-    {
+    private ProjectRepositoryInterface $projectRepository;
+
+    private TagRepositoryInterface $tagRepository;
+
+    private UserRepositoryInterface $userRepository;
+
+    public function __construct(
+        ResponseFactory $responseFactory,
+        TaskRepositoryInterface $taskRepository,
+        ProjectRepositoryInterface $projectRepository,
+        TagRepositoryInterface $tagRepository,
+        UserRepositoryInterface $userRepository
+    ) {
         $this->responseFactory = $responseFactory;
         $this->taskRepository = $taskRepository;
+        $this->projectRepository = $projectRepository;
+        $this->tagRepository = $tagRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function index(): Response
@@ -29,7 +46,9 @@ class TaskController
 
     public function create(): Response
     {
-        return $this->responseFactory->view("tasks/create.html.twig");
+        $projects = $this->projectRepository->all();
+        $tags = $this->tagRepository->all();
+        return $this->responseFactory->view('tasks/create.html.twig', ['projects' => $projects, 'tags' => $tags]);
     }
 
     public function store(Request $request): Response
@@ -65,16 +84,39 @@ class TaskController
             }
         }
 
+        $user = $request->getAttribute('user');
+        if (!$user) {
+            $errors['user'] = "User must be authenticated.";
+        }
+
         $task = new Task();
         $task->title = $title ?? '';
         $task->description = $description;
         $task->priority = (int)$priority;
         $task->status = (int)$status;
         $task->createdAt = (int)$createdAt;
+        $task->createdBy = $user->id ?? 0;
 
         if (!empty($errors)) {
             return $this->responseFactory->view("tasks/create.html.twig", ["errors" => $errors, "task" => $task]);
         }
+
+        $projectId = $request->get('project');
+        if ($projectId !== '') {
+            $task->projectId = (int)$projectId;
+        }
+
+        $tagsRequest = $request->getMany('tags');
+        $tags = [];
+        if ($tagsRequest) {
+            foreach ($tagsRequest as $tagId) {
+                $tag = $this->tagRepository->find((int)$tagId);
+                if ($tag) {
+                    $tags[] = $tag;
+                }
+            }
+        }
+        $task->tags = $tags;
 
         $task = $this->taskRepository->insert($task);
         if ($task === null) {
@@ -91,7 +133,12 @@ class TaskController
         if ($task === null) {
             return $this->responseFactory->notFound();
         }
-        return $this->responseFactory->view("tasks/show.html.twig", ["task" => $task]);
+        $project = ($task->projectId) ? $this->projectRepository->find($task->projectId) : '';
+
+        $user = $this->userRepository->findById($task->createdBy);
+        $createdBy = $user ? $user->name : "Unknown";
+
+        return $this->responseFactory->view("tasks/show.html.twig", ["task" => $task, "project" => $project, "created_by" => $createdBy]);
     }
 
     public function edit(Request $request): Response
@@ -99,7 +146,9 @@ class TaskController
         $id = (int)$request->get('id');
         $task = $this->taskRepository->find($id);
         return $this->responseFactory->view('tasks/edit.html.twig', [
-            'task' => $task
+            'task' => $task,
+            'projects' => $this->projectRepository->all(),
+            'tags' => $this->tagRepository->all()
         ]);
     }
 
@@ -127,6 +176,19 @@ class TaskController
             $completedAt = DateTime::createFromFormat('Y-m-d', $completedAtInput);
             $task->completedAt = $completedAt ? $completedAt->getTimestamp() : null;
         }
+        $task->projectId = (int)$request->get('project');
+
+        $tagsRequest = $request->getMany('tags');
+        $tags = [];
+        if ($tagsRequest) {
+            foreach ($tagsRequest as $tagId) {
+                $tag = $this->tagRepository->find((int)$tagId);
+                if ($tag) {
+                    $tags[] = $tag;
+                }
+            }
+        }
+        $task->tags = $tags;
 
         $taskUpdate = $this->taskRepository->update($task);
         if (!$taskUpdate) {
